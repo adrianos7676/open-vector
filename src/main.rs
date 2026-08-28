@@ -3,8 +3,9 @@ use serde::Deserialize;
 
 use iced::{Element, Point, Subscription, Task, mouse, window::{self, Level}};
 
-use crate::gui::{main_window::menu_bar::{self, AppMenu}, settings_window::AvailableLocale};
-
+use crate::gui::settings_window::AvailableLocale;
+#[cfg(not(target_os = "linux"))]
+use crate::gui::main_window::menu_bar::{self, AppMenu};
 mod gui;
 mod file;
 
@@ -37,6 +38,7 @@ impl Default for State {
     fn default() -> Self {
         let locale = load_locale("en");
         Self {
+            #[cfg(not(target_os = "linux"))]
             main_window_menu_bar: AppMenu::new(&locale),
             locale: locale,
             main_window: None,
@@ -53,6 +55,7 @@ impl Default for State {
 struct State {
     locale: Locale,
     main_window: Option<window::Id>,
+    #[cfg(not(target_os = "linux"))]
     main_window_menu_bar: menu_bar::AppMenu,
     about_window: Option<window::Id>,
     settings_window: Option<window::Id>,
@@ -109,8 +112,12 @@ fn boot() -> (State, Task<Message>) {
     )
 }
 
-fn subscription(state: &State) -> Subscription<Message> {
+fn subscription(
+    #[cfg(target_os = "linux")] _state: &State,
+    #[cfg(not(target_os = "linux"))] state: &State,
+) -> Subscription<Message> {
     Subscription::batch([
+        #[cfg(not(target_os = "linux"))]
         menu_bar::menu_subscription(state),
         window::close_events().map(Message::WindowClosed),
         iced::event::listen_with(|event, _status, _winodw_id| {
@@ -241,6 +248,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
         },
         Message::LocaleChange(locale) => {
             state.locale = load_locale(&locale.lang);
+            #[cfg(not(target_os = "linux"))]
             state.main_window_menu_bar.set_locale(&state.locale);
         },
         Message::NoOp => {},
