@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use iced::{Element, Point, Subscription, Task, mouse, window::{self, Level}};
 
-use crate::gui::settings_window::AvailableLocale;
+use crate::gui::{main_window::menu_bar::{self, AppMenu}, settings_window::AvailableLocale};
 
 mod gui;
 mod file;
@@ -35,8 +35,10 @@ struct Locale {
 
 impl Default for State {
     fn default() -> Self {
+        let locale = load_locale("en");
         Self {
-            locale: load_locale("en"),
+            main_window_menu_bar: AppMenu::new(&locale),
+            locale: locale,
             main_window: None,
             about_window: None,
             settings_window: None,
@@ -51,6 +53,7 @@ impl Default for State {
 struct State {
     locale: Locale,
     main_window: Option<window::Id>,
+    main_window_menu_bar: menu_bar::AppMenu,
     about_window: Option<window::Id>,
     settings_window: Option<window::Id>,
     open_projects: HashMap<String, String>,
@@ -106,8 +109,9 @@ fn boot() -> (State, Task<Message>) {
     )
 }
 
-fn subscription(_state: &State) -> Subscription<Message> {
+fn subscription(state: &State) -> Subscription<Message> {
     Subscription::batch([
+        menu_bar::menu_subscription(state),
         window::close_events().map(Message::WindowClosed),
         iced::event::listen_with(|event, _status, _winodw_id| {
             match event {
@@ -140,6 +144,25 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
     match message {
         Message::MainWindowOpened(id) => {
             state.main_window = Some(id);
+
+            #[cfg(target_os = "macos")]
+            state.main_window_menu_bar.menu.init_for_nsapp();
+
+            #[cfg(target_os = "windows")]
+            {
+                use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+ 
+                let menu = state.main_window_menu_bar.menu.clone();
+ 
+                return window::run_with_handle(id, move |handle| {
+                    if let Ok(handle) = handle.window_handle() {
+                        if let RawWindowHandle::Win32(win32) = handle.as_raw() {
+                            let _ = menu.init_for_hwnd(win32.hwnd.get() as isize);
+                        }
+                    }
+                    Message::NoOp
+                });
+            }
         }
 
         Message::AboutWindowOpened(id) => gui::about_window::window_opened(state, id),
@@ -218,6 +241,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
         },
         Message::LocaleChange(locale) => {
             state.locale = load_locale(&locale.lang);
+            state.main_window_menu_bar.set_locale(&state.locale);
         },
         Message::NoOp => {},
     }
