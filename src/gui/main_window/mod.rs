@@ -1,13 +1,28 @@
 use iced::{
-    Background, Element, Length, widget::{column, container, mouse_area, row, text},
+    Background, Element, Length, widget::{button, column, container, mouse_area, row, text}, Theme, Renderer,
 };
 use iced_aw::{Menu, MenuBar, menu::Item};
 
 use crate::{
-    Message,
-    State,
-    gui::{menu_button, menu_item, elements},
+    Message, State, gui::elements,
 };
+
+pub fn menu_button(label: &str, message: Message) -> Element<'_, Message> {
+    button(text(label))
+        .on_press(message)
+        .width(Length::Fill)
+        .into()
+}
+
+fn menu_item<'a>(
+    label: &'a str,
+    menu: Menu<'a, Message, Theme, Renderer>,
+) -> Item<'a, Message, Theme, Renderer> {
+    Item::with_menu(
+        button(text(label)),
+        menu,
+    )
+}
 
 pub fn view(state: &State) -> Element<'_, Message> {
     let file_menu = Menu::new(vec![
