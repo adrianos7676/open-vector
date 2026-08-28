@@ -1,5 +1,5 @@
 use iced::{
-    Alignment, Background, Element, Length, widget::{column, container, mouse_area, row, text},
+    Alignment, Background, Element, Length, Task, widget::{column, container, mouse_area, row, text}, window::{self, Id},
 };
 #[cfg(target_os = "linux")]
 use iced::{widget::button, Theme, Renderer};
@@ -11,7 +11,7 @@ use crate::{
 };
 #[cfg(not(target_os = "linux"))]
 pub mod menu_bar;
-mod canvas;
+pub(crate) mod canvas;
 #[cfg(target_os = "linux")]
 pub fn menu_button(label: &str, message: Message) -> Element<'_, Message> {
     button(text(label))
@@ -30,6 +30,53 @@ fn menu_item<'a>(
     )
 }
 
+pub fn open(state: &mut State) -> Task<Message> {
+    let icon = image::load_from_memory(include_bytes!("../../../assets/icon.png"))
+        .expect("Failed to load icon")
+        .into_rgba8();
+
+    let icon = window::icon::from_rgba(
+        icon.as_raw().to_vec(),
+        icon.width(),
+        icon.height(),
+    )
+    .ok();
+
+    let (window_id, task) = window::open(window::Settings {
+        icon,
+        size: iced::Size::new(1280.0, 800.0),
+        resizable: true,
+        ..Default::default()
+    });
+
+    state.main_window = Some(window_id);
+
+    #[cfg(target_os = "macos")]
+    state.main_window_menu_bar.menu.init_for_nsapp();
+
+    #[cfg(target_os = "windows")]
+    {
+        use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+
+        let menu = state.main_window_menu_bar.menu.clone();
+
+        return task.chain(
+            window::run_with_handle(window_id, move |handle| {
+                if let Ok(handle) = handle.window_handle() {
+                    if let RawWindowHandle::Win32(win32) = handle.as_raw() {
+                        let _ = menu.init_for_hwnd(win32.hwnd.get() as isize);
+                    }
+                }
+
+                Message::NoOp
+            })
+        );
+    }
+
+    task.map(|_| Message::NoOp)
+}
+
+
 pub fn view(state: &State) -> Element<'_, Message> {
     #[cfg(target_os = "linux")]
     let file_menu = Menu::new(vec![
@@ -40,8 +87,8 @@ pub fn view(state: &State) -> Element<'_, Message> {
     ]);
     #[cfg(target_os = "linux")]
     let misc_menu = Menu::new(vec![
-        Item::new(menu_button(&state.locale.menu["settings_menu_button"], Message::Settings)),
-        Item::new(menu_button(&state.locale.menu["about_software_menu_button"], Message::AboutSoftware)),
+        Item::new(menu_button(&state.locale.menu["settings_menu_button"], Message::SettingsWindowOpen)),
+        Item::new(menu_button(&state.locale.menu["about_software_menu_button"], Message::AboutWindowOpen)),
     ]);
     #[cfg(target_os = "linux")]
     let top_bar = container(

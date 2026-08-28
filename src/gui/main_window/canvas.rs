@@ -21,24 +21,17 @@ impl<'a> canvas::Program<Message> for VectorCanvas<'a> {
     fn update(
         &self,
         _state: &mut Self::State,
-        event: &iced::Event,       // <-- Referencja do Event, poprawnie
+        event: &iced::Event,
         bounds: Rectangle,
         cursor: mouse::Cursor,
     ) -> std::option::Option<iced::widget::Action<Message>> {
-        // 1. Sprawdź, czy kursor znajduje się wewnątrz granic (in bounds) tego elementu
         if let Some(cursor_position) = cursor.position_in(bounds) {
-            
-            // 2. Dopasuj referencję do Event (używamy ref przed polami lub dereferencji)
             if let Event::Mouse(mouse::Event::WheelScrolled { delta }) = *event {
-                
-                // Wyciągamy wartość przesunięcia w pionie
                 let delta_y = match delta {
-                    mouse::ScrollDelta::Lines { y, .. } => y,   // Tradycyjna mysz
-                    mouse::ScrollDelta::Pixels { y, .. } => y,  // Gładzik / Trackpad
+                    mouse::ScrollDelta::Lines { y, .. } => y,   // Mouse
+                    mouse::ScrollDelta::Pixels { y, .. } => y,  // Trackpad
                 };
 
-                // 3. W nowym Iced do przechwycenia i wysłania wiadomości służy Action::publish
-                // Automatycznie oznacza to wydarzenie jako Captured w drzewie widżetów.
                 return Some(iced::widget::Action::publish(
                     Message::CanvasScrolled(
                         delta_y, 
@@ -47,8 +40,6 @@ impl<'a> canvas::Program<Message> for VectorCanvas<'a> {
                 ));
             }
         }
-
-        // Jeśli kursor jest poza elementem lub zdarzenie to nie scroll, ignorujemy je
         None
     }
 
@@ -102,4 +93,21 @@ pub fn draw(state: &State) -> Element<'_, Message> {
         .width(Length::Fill)
         .height(Length::Fill)
         .into()
+}
+
+pub fn scrolled(state: &mut State, delta: f32, point: Point) {
+    if let Some(selected_project) = &state.selected_project {
+        if let Some(project) = state.open_projects_state.get_mut(selected_project) {
+            if state.control_pressed {
+
+            } else if state.shift_pressed {
+
+            } else {
+                    let factor = if delta > 0.0 { 1.1 } else { 0.9 };
+                    project.zoom *= factor;
+
+                    project.zoom = project.zoom.clamp(0.05, 50.0);
+                }
+            }
+        }
 }

@@ -170,9 +170,9 @@ impl AppMenu {
                     } else if event.id == ids.3 {
                         Message::SaveAs
                     } else if event.id == ids.4 {
-                        Message::Settings
+                        Message::SettingsWindowOpen
                     } else if event.id == ids.5 {
-                        Message::AboutSoftware
+                        Message::AboutWindowOpen
                     } else {
                         continue;
                     };

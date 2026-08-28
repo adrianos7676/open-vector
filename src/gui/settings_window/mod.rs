@@ -1,7 +1,7 @@
 use std::fs;
 
 use iced::{
-    Element, Length, widget::{column, container, pick_list, row, scrollable, space::horizontal, text}, window,
+    Element, Length, Task, widget::{column, container, pick_list, row, scrollable, space::horizontal, text}, window::{self, Level},
 };
 
 use serde::Deserialize;
@@ -66,6 +66,22 @@ pub fn view(state: &State) -> Element<'_, Message> {
     .into()
 }
 
-pub fn window_opened(state: &mut State, id: window::Id) {
-    state.settings_window = Some(id);
+pub fn open(state: &mut State) -> Task<Message> {
+    if state.settings_window.is_none() {
+        let (_, task) = window::open(window::Settings {
+            size: iced::Size::new(400.0, 300.0),
+            resizable: false,
+            level: Level::AlwaysOnTop,
+            ..Default::default()
+        });
+
+        return task.map(Message::SettingsWindowOpened);
+    } else {
+        //TODO: set the existing window to focus
+    }
+    Task::none()
+}
+
+pub fn opened(state: &mut State, window_id: window::Id) {
+    state.settings_window = Some(window_id);
 }
