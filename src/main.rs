@@ -1,7 +1,7 @@
 use std::{collections::hash_map::HashMap, fs};
 use serde::Deserialize;
 
-use iced::{Element, Point, Subscription, Task, mouse, window::{self, Level}};
+use iced::{Element, Point, Subscription, Task, keyboard::{self, Key, key::Named}, mouse, window::{self, Level}};
 
 use crate::gui::settings_window::AvailableLocale;
 #[cfg(not(target_os = "linux"))]
@@ -49,7 +49,8 @@ impl Default for State {
             open_projects_state: HashMap::new(),
             resizing_sidebar: false,
             sidebar_width: 240.0,
-            window_size: iced::Size { width: 1280.0, height: 720.0 }
+            window_size: iced::Size { width: 1280.0, height: 720.0 },
+            shift_pressed: false,
         }
     }
 }
@@ -72,6 +73,7 @@ struct State {
     resizing_sidebar: bool,
     sidebar_width: f32,
     window_size: iced::Size,
+    shift_pressed: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -80,6 +82,8 @@ enum Message {
     AboutWindowOpened(window::Id),
     SettingsWindowOpened(window::Id),
     WindowClosed(window::Id),
+    ButtonPressed(Key),
+    ButtonReleased(Key),
     NewFile,
     OpenFile,
     SaveFile,
@@ -93,6 +97,7 @@ enum Message {
     StartSidebarResize,
     StopSidebarResize,
     WindowResize(iced::Size),
+    CanvasScrolled(f32, Point),
     LocaleChange(AvailableLocale),
     NoOp,
 }
@@ -137,6 +142,12 @@ fn subscription(
                 iced::Event::Mouse(mouse::Event::ButtonReleased(iced::mouse::Button::Left)) => {
                     Some(Message::StopSidebarResize)
                 },
+                iced::Event::Keyboard(keyboard::Event::KeyPressed { key, modified_key: _, physical_key: _, location: _, modifiers: _, text: _, repeat: _ }) => {
+                    Some(Message::ButtonPressed(key))
+                },
+                iced::Event::Keyboard(keyboard::Event::KeyReleased { key, modified_key: _, physical_key: _, location: _, modifiers: _}) => {
+                    Some(Message::ButtonReleased(key))
+                },
                 iced::Event::Window(window::Event::Resized(size)) => {
                     Some(Message::WindowResize(size))
                 },
@@ -158,6 +169,22 @@ fn title(state: &State, window_id: window::Id) -> String {
 
 fn update(state: &mut State, message: Message) -> Task<Message> {
     match message {
+        Message::ButtonPressed(key) => {
+            println!("Key pressed: {:?}", key);
+            match key {
+                Key::Named(Named::Shift) => state.shift_pressed = true,
+                _ => {},
+            }
+        },
+
+        Message::ButtonReleased(key) => {
+            println!("Key Released: {:?}", key);
+            match key {
+                Key::Named(Named::Shift) => state.shift_pressed = false,
+                _ => {},
+            }
+        },
+
         Message::MainWindowOpened(id) => {
             state.main_window = Some(id);
 
@@ -179,7 +206,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                     Message::NoOp
                 });
             }
-        }
+        },
 
         Message::AboutWindowOpened(id) => gui::about_window::window_opened(state, id),
 
@@ -259,6 +286,19 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             state.locale = load_locale(&locale.lang);
             #[cfg(not(target_os = "linux"))]
             state.main_window_menu_bar.set_locale(&state.locale);
+        },
+        Message::CanvasScrolled(delta, point) => {
+            
+            println!("{}, {}", delta, point);
+
+            if let Some(selected_project) = &state.selected_project {
+                if let Some(project) = state.open_projects_state.get_mut(selected_project) {
+                    let factor = if delta > 0.0 { 1.1 } else { 0.9 };
+                    project.zoom *= factor;
+
+                    project.zoom = project.zoom.clamp(0.05, 50.0);
+                }
+            }
         },
         Message::NoOp => {},
     }
