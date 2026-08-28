@@ -35,7 +35,6 @@ pub fn message_file_selected(path: Option<PathBuf>, state: &mut State) -> Task<M
         if state.open_projects.values().any(|value| value == &path.to_string_lossy()) {
             return Task::none();
         }
-
         if !path.exists() {
             if let Err(error) = std::fs::File::create(&path) {
                 return Task::perform(
@@ -53,6 +52,8 @@ pub fn message_file_selected(path: Option<PathBuf>, state: &mut State) -> Task<M
 
             if path.is_file() {
                 if let Some(file_name) = path.file_name() {
+                    state.open_projects_state.insert(file_name.to_string_lossy().to_string(), crate::ProjectState { zoom: 0.0, offset: iced::Vector::new(0.0, 0.0)});
+                    state.selected_project = Some(file_name.to_string_lossy().to_string());
                     state.open_projects.insert(
                     file_name.to_string_lossy().to_string(),
                     path.to_string_lossy().to_string(),

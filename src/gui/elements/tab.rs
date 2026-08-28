@@ -5,8 +5,8 @@ use iced::{
 use crate::Message;
 
 fn project_name_button(name: String) -> Element<'static, Message> {
-    button(text(name))
-        .on_press(Message::ChangeProjects)
+    button(text(name.clone()))
+        .on_press(Message::ChangeProjects(name))
         .style(|_theme, _status| {
             button::Style {
                 background: None,

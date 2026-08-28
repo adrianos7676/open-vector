@@ -1,5 +1,5 @@
 use iced::{
-    Background, Element, Length, widget::{column, container, mouse_area, row, text},
+    Alignment, Background, Element, Length, widget::{column, container, mouse_area, row, text},
 };
 #[cfg(target_os = "linux")]
 use iced::{widget::button, Theme, Renderer};
@@ -11,6 +11,7 @@ use crate::{
 };
 #[cfg(not(target_os = "linux"))]
 pub mod menu_bar;
+mod canvas;
 #[cfg(target_os = "linux")]
 pub fn menu_button(label: &str, message: Message) -> Element<'_, Message> {
     button(text(label))
@@ -59,22 +60,19 @@ pub fn view(state: &State) -> Element<'_, Message> {
         mouse_area(
             container("")
             .width(4)
-            .height(Length::Fill)
-            .style(|_theme| {
-            container::Style {
-                background: Some(
-                    Background::Color(
-                        iced::Color::from_rgb(1.0, 0.0, 0.0)
-                    )
-                ),
-                ..Default::default()
-            }
-        }),
+            .height(Length::Fill),
         )
         .on_press(Message::StartSidebarResize),
         column![
-        container(text("Title"))
+        container(
+            text("Title")
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .align_x(Alignment::Center)
+            .align_y(Alignment::Center)
+        )
         .width(Length::Fill)
+        .height(32)
         .padding(8)
         .style(|_theme| {
             container::Style {
@@ -102,11 +100,7 @@ pub fn view(state: &State) -> Element<'_, Message> {
     .width(Length::Fill)
     .height(32);
 
-    let canvas_area = container(
-        text("canvas goes here"),
-    )
-    .width(Length::Fill)
-    .height(Length::Fill);
+   let canvas_area = canvas::draw(state);
 
     column(vec![
         #[cfg(target_os = "linux")]
