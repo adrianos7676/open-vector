@@ -1,0 +1,24 @@
+lang: "pl"
+lang_full: "Polski"
+
+menu:
+  window_title: "Open Vector"
+  new_file_menu_button: "Nowy plik"
+  open_projects_file_menu_button: "Otwórz"
+  save_file_menu_button: "Zapisz"
+  save_as_file_menu_button: "Zapisz jako..."
+  settings_menu_button: "Ustawienia"
+  about_software_menu_button: "O oprogramowaniu"
+  file_menu_dropdown: "Plik"
+  misc_menu_dropdown: "Pozostałe"
+
+settings:
+  window_title: "Ustawienia"
+  gui_title: "Ustawienia"
+  locale_label: "Język"
+
+about:
+  window_title: "O Open Vector"
+  program_name: "Open Vector"
+  version: "Wersja"
+  licensed_under: "Licencjonowane na warunkach GNU General Public License v3.0"

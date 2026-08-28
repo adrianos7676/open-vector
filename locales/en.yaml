@@ -1,0 +1,24 @@
+lang: "en"
+lang_full: "English"
+
+menu:
+  window_title: "Open Vector"
+  new_file_menu_button: "New File"
+  open_projects_file_menu_button: "Open"
+  save_file_menu_button: "Save"
+  save_as_file_menu_button: "Save as..."
+  settings_menu_button: "Settings"
+  about_software_menu_button: "About software"
+  file_menu_dropdown: "File"
+  misc_menu_dropdown: "Misc"
+
+settings:
+  window_title: "Settings"
+  gui_title: "Settings"
+  locale_label: "Language"
+
+about:
+  window_title: "About Open Vector"
+  program_name: "Open Vector"
+  version: "Version"
+  licensed_under: "Licensed under the GNU General Public License v3.0"
