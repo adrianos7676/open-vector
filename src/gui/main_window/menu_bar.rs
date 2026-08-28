@@ -91,10 +91,6 @@ impl AppMenu {
         ])
         .unwrap();
 
-        // UWAGA: init_for_nsapp() celowo NIE jest tu wołane.
-        // W tym momencie okno jeszcze nie istnieje (jesteśmy w State::default()
-        // wywoływanym z boot()). Wołamy to dopiero w main.rs po Message::MainWindowOpened.
-
         Self {
             menu,
             new_file,
@@ -146,19 +142,16 @@ impl AppMenu {
             let ids = ids.clone();
             iced::stream::channel(100, move |mut output: iced_mpsc::Sender<Message>| async move {
                 use iced::futures::StreamExt;
-
-                // Blokujący kanał - używany tylko przez callback muda (który jest synchroniczny)
+                
                 let (event_sender, event_receiver) = std_mpsc::channel::<muda::MenuEvent>();
 
                 muda::MenuEvent::set_event_handler(Some(move |event| {
                     let _ = event_sender.send(event);
                 }));
 
-                // Asynchroniczny kanał, którym eventy trafiają do pętli poniżej
+                
                 let (mut async_tx, mut async_rx) = iced_mpsc::channel::<muda::MenuEvent>(100);
 
-                // Osobny wątek systemowy: TU wolno blokować na recv(),
-                // bo nie jest to wątek executor'a iced/tokio.
                 std::thread::spawn(move || {
                     while let Ok(event) = event_receiver.recv() {
                         if iced::futures::executor::block_on(async_tx.send(event)).is_err() {
