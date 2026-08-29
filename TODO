@@ -1,2 +1,3 @@
 Add horizontal and vertical canvas scrolling
 add keybinds
+Refactor locales to use a struct instead of a Hashmap
