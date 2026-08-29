@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use iced::{Task};
+use iced::{Task, Vector};
 
 use crate::{Message, State};
 
@@ -32,7 +32,7 @@ pub fn message_open_file() -> Task<Message> {
 
 pub fn message_file_selected(path: Option<PathBuf>, state: &mut State) -> Task<Message> {
     if let Some(path) = path {
-        if state.open_projects.values().any(|value| value == &path.to_string_lossy()) {
+        if state.open_projects.iter().any(|value| value.name == path.to_string_lossy()) {
             return Task::none();
         }
         if !path.exists() {
@@ -52,12 +52,9 @@ pub fn message_file_selected(path: Option<PathBuf>, state: &mut State) -> Task<M
 
             if path.is_file() {
                 if let Some(file_name) = path.file_name() {
-                    state.open_projects_state.insert(file_name.to_string_lossy().to_string(), crate::ProjectState { zoom: 1.0, offset: iced::Vector::new(0.0, 0.0)});
-                    state.selected_project = Some(file_name.to_string_lossy().to_string());
-                    state.open_projects.insert(
-                    file_name.to_string_lossy().to_string(),
-                    path.to_string_lossy().to_string(),
-                );
+                    let id = state.open_projects.len();
+                    state.open_projects.insert(id, crate::Document{ id: id, name: file_name.to_string_lossy().to_string(), zoom: 1.0, offset: Vector { x: 0.0, y: 0.0 } });
+                    state.open_project = Some(id);
             }
         }
     }

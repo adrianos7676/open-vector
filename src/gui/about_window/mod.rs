@@ -1,5 +1,5 @@
 use iced::widget::{column, container, text};
-use iced::window::{Id, Level};
+use iced::window::Level;
 use iced::{Element, Length, Task, window};
 
 use crate::{Message, State};

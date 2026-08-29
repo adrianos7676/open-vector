@@ -1,5 +1,5 @@
 use iced::{
-    Alignment, Background, Element, Length, Task, widget::{column, container, mouse_area, row, text}, window::{self, Id},
+    Alignment, Background, Element, Length, Task, widget::{column, container, mouse_area, row, text}, window,
 };
 #[cfg(target_os = "linux")]
 use iced::{widget::button, Theme, Renderer};
@@ -140,8 +140,8 @@ pub fn view(state: &State) -> Element<'_, Message> {
 
     let tabs = row(
         state.open_projects
-            .keys()
-            .map(|name| elements::tab::new(name.clone()))
+            .iter()
+            .map(|document| elements::tab::new(&document.name, &document.id))
     )
     .spacing(2)
     .width(Length::Fill)

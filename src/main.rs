@@ -45,9 +45,8 @@ impl Default for State {
             main_window: None,
             about_window: None,
             settings_window: None,
-            selected_project: None,
-            open_projects: HashMap::new(),
-            open_projects_state: HashMap::new(),
+            open_project: None,
+            open_projects: Vec::new(),
             resizing_sidebar: false,
             sidebar_width: 240.0,
             window_size: iced::Size { width: 1280.0, height: 720.0 },
@@ -57,7 +56,9 @@ impl Default for State {
     }
 }
 
-struct ProjectState {
+struct Document {
+    id: usize,
+    name: String,
     zoom: f32,
     offset: iced::Vector,
 }
@@ -69,9 +70,8 @@ struct State {
     main_window_menu_bar: menu_bar::AppMenu,
     about_window: Option<window::Id>,
     settings_window: Option<window::Id>,
-    selected_project: Option<String>,
-    open_projects: HashMap<String, String>,
-    open_projects_state: HashMap<String, ProjectState>,
+    open_project: Option<usize>,
+    open_projects: Vec<Document>,
     resizing_sidebar: bool,
     sidebar_width: f32,
     window_size: iced::Size,
@@ -92,7 +92,7 @@ enum Message {
     OpenFile,
     SaveFile,
     SaveAs,
-    ChangeProjects(String),
+    ChangeProjects(usize),
     CloseTab,
     FileSelected(Option<std::path::PathBuf>),
     MouseMoved(Point),
@@ -178,7 +178,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             println!("Save As...");
         }
 
-        Message::ChangeProjects(project_name) => state.selected_project = Some(project_name),
+        Message::ChangeProjects(project_id) => state.open_project = Some(project_id),
         Message::CloseTab => {
             println!("CloseTab");
         },

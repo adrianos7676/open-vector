@@ -4,9 +4,9 @@ use iced::{
 
 use crate::Message;
 
-fn project_name_button(name: String) -> Element<'static, Message> {
-    button(text(name.clone()))
-        .on_press(Message::ChangeProjects(name))
+fn project_name_button(name: &String, id: &usize) -> Element<'static, Message> {
+    button(text(name.to_owned()))
+        .on_press(Message::ChangeProjects(*id))
         .style(|_theme, _status| {
             button::Style {
                 background: None,
@@ -28,10 +28,10 @@ fn project_close_button() -> Element<'static, Message> {
         .into()
 }
 
-pub fn new(name: String) -> Element<'static, Message> {
+pub fn new(name: &String, id: &usize) -> Element<'static, Message> {
     container(
         row![
-            project_name_button(name),
+            project_name_button(name, id),
             project_close_button(),
         ]
         .spacing(4)

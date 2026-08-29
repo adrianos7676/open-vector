@@ -53,13 +53,14 @@ impl<'a> canvas::Program<Message> for VectorCanvas<'a> {
     ) -> Vec<Geometry> {
         let mut frame = Frame::new(renderer, bounds.size());
 
-        let Some(selected_project) = &self.state.selected_project else {
+        let Some(selected_project) = self.state.open_project else {
             return vec![];
         };
 
-        let Some(project) = self.state.open_projects_state.get(selected_project) else {
+        let Some(project) = self.state.open_projects.get(selected_project) else {
             return vec![];
         };
+
 
         let background = Path::rectangle(
             Point::ORIGIN,
@@ -95,19 +96,19 @@ pub fn draw(state: &State) -> Element<'_, Message> {
         .into()
 }
 
-pub fn scrolled(state: &mut State, delta: f32, point: Point) {
-    if let Some(selected_project) = &state.selected_project {
-        if let Some(project) = state.open_projects_state.get_mut(selected_project) {
+pub fn scrolled(state: &mut State, delta: f32, _point: Point) {
+    if let Some(open_project) = state.open_project {
+        if let Some(project) = state.open_projects.get_mut(open_project) {
             if state.control_pressed {
 
             } else if state.shift_pressed {
 
             } else {
-                    let factor = if delta > 0.0 { 1.1 } else { 0.9 };
-                    project.zoom *= factor;
+                let factor = if delta > 0.0 { 1.1 } else { 0.9 };
 
-                    project.zoom = project.zoom.clamp(0.05, 50.0);
-                }
+                project.zoom *= factor;
+                project.zoom = project.zoom.clamp(0.05, 50.0);
             }
         }
+    }
 }
