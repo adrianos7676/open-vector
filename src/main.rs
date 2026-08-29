@@ -81,6 +81,7 @@ struct State {
 
 #[derive(Debug, Clone)]
 enum Message {
+    MainWindowOpened(window::Id),
     AboutWindowOpen,
     AboutWindowOpened(window::Id),
     SettingsWindowOpen,
@@ -105,8 +106,8 @@ enum Message {
 }
 
 fn boot() -> (State, Task<Message>) {
-    let mut state = State::default();
-    let task = main_window::open(&mut state);
+    let state = State::default();
+    let task = main_window::open();
 
     (state, task)
 }
@@ -154,6 +155,7 @@ fn title(state: &State, window_id: window::Id) -> String {
 
 fn update(state: &mut State, message: Message) -> Task<Message> {
     match message {
+        Message::MainWindowOpened(id) => gui::main_window::opened(state, id),
         Message::ButtonPressed(key) => hid::key_pressed(state, key),
 
         Message::ButtonReleased(key) => hid::key_released(state, key),
