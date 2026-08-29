@@ -11,3 +11,10 @@ image = "0.25"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 muda = "0.19.3"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
