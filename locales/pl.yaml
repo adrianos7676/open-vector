@@ -14,7 +14,6 @@ menu:
 
 settings:
   window_title: "Ustawienia"
-  gui_title: "Ustawienia"
   locale_label: "Język"
 
 about:

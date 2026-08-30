@@ -1,5 +1,4 @@
-use std::{collections::hash_map::HashMap, fs};
-use serde::Deserialize;
+use std::fs;
 
 use iced::{Element, Point, Subscription, Task, keyboard::{self, Key}, mouse, window};
 
@@ -9,7 +8,7 @@ use crate::gui::main_window::menu_bar::{self, AppMenu};
 mod gui;
 mod file;
 mod hid;
-
+mod locale;
 fn main() -> iced::Result {
     iced::daemon(boot, update, view)
         .title(title)
@@ -17,7 +16,7 @@ fn main() -> iced::Result {
         .run()
 }
 
-fn load_locale(language: &str) -> Locale {
+fn load_locale(language: &str) -> locale::Locale {
     let path = format!("locales/{}.yaml", language);
 
     let content = fs::read_to_string(path)
@@ -27,13 +26,6 @@ fn load_locale(language: &str) -> Locale {
         .expect("Nie można sparsować pliku lokalizacji")
 }
 
-#[derive(Debug, Deserialize)]
-struct Locale {
-    lang: String,
-    menu: HashMap<String, String>,
-    settings: HashMap<String, String>,
-    about: HashMap<String, String>,
-}
 
 impl Default for State {
     fn default() -> Self {
@@ -64,7 +56,7 @@ struct Document {
 }
 
 struct State {
-    locale: Locale,
+    locale: locale::Locale,
     main_window: Option<window::Id>,
     #[cfg(not(target_os = "linux"))]
     main_window_menu_bar: menu_bar::AppMenu,
@@ -145,11 +137,11 @@ fn subscription(
 
 fn title(state: &State, window_id: window::Id) -> String {
     if state.settings_window == Some(window_id) {
-        state.locale.settings["window_title"].to_string()
+        state.locale.settings.window_title.to_string()
     } else if state.about_window == Some(window_id) {
-        state.locale.about["window_title"].to_string()
+        state.locale.about.window_title.to_string()
     } else {
-        state.locale.menu["window_title"].to_string()
+        state.locale.menu.window_title.to_string()
     }
 }
 

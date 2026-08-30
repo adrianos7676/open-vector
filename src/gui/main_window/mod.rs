@@ -61,21 +61,21 @@ pub fn opened(state: &mut State, id: window::Id) {
 pub fn view(state: &State) -> Element<'_, Message> {
     #[cfg(target_os = "linux")]
     let file_menu = Menu::new(vec![
-        Item::new(menu_button(&state.locale.menu["new_file_menu_button"], Message::NewFile)),
-        Item::new(menu_button(&state.locale.menu["open_projects_file_menu_button"], Message::OpenFile)),
-        Item::new(menu_button(&state.locale.menu["save_file_menu_button"], Message::SaveFile)),
-        Item::new(menu_button(&state.locale.menu["save_as_file_menu_button"], Message::SaveAs)),
+        Item::new(menu_button(&state.locale.menu.new_file_menu_button, Message::NewFile)),
+        Item::new(menu_button(&state.locale.menu.open_projects_file_menu_button, Message::OpenFile)),
+        Item::new(menu_button(&state.locale.menu.save_file_menu_button, Message::SaveFile)),
+        Item::new(menu_button(&state.locale.menu.save_as_file_menu_button, Message::SaveAs)),
     ]);
     #[cfg(target_os = "linux")]
     let misc_menu = Menu::new(vec![
-        Item::new(menu_button(&state.locale.menu["settings_menu_button"], Message::SettingsWindowOpen)),
-        Item::new(menu_button(&state.locale.menu["about_software_menu_button"], Message::AboutWindowOpen)),
+        Item::new(menu_button(&state.locale.menu.settings_menu_button, Message::SettingsWindowOpen)),
+        Item::new(menu_button(&state.locale.menu.about_software_menu_button, Message::AboutWindowOpen)),
     ]);
     #[cfg(target_os = "linux")]
     let top_bar = container(
         MenuBar::new(vec![
-            menu_item(&state.locale.menu["file_menu_dropdown"], file_menu),
-            menu_item(&state.locale.menu["misc_menu_dropdown"], misc_menu),
+            menu_item(&state.locale.menu.file_menu_dropdown, file_menu),
+            menu_item(&state.locale.menu.misc_menu_dropdown, misc_menu),
         ])
         .spacing(8),
     )

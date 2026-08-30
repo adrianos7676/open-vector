@@ -9,14 +9,14 @@ pub fn view(state: &State) -> Element<'_, Message> {
 
     container(
         column![
-            text(state.locale.about["program_name"].clone()).size(24),
+            text(state.locale.about.program_name.clone()).size(24),
             text(format!(
                 "{} {}",
-                state.locale.about["version"].clone(),
+                state.locale.about.version.clone(),
                 VERSION
             )),
             text("© 2026 Open Creative Suite"),
-            text(state.locale.about["licensed_under"].clone()),
+            text(state.locale.about.licensed_under.clone()),
         ]
         .spacing(8)
         .padding(20),

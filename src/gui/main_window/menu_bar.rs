@@ -20,43 +20,43 @@ pub struct AppMenu {
 impl AppMenu {
     pub fn new(locale: &Locale) -> Self {
         let new_file = MenuItem::new(
-            &locale.menu["new_file_menu_button"],
+            &locale.menu.new_file_menu_button,
             true,
             None,
         );
 
         let open_file = MenuItem::new(
-            &locale.menu["open_projects_file_menu_button"],
+            &locale.menu.open_projects_file_menu_button,
             true,
             None,
         );
 
         let save_file = MenuItem::new(
-            &locale.menu["save_file_menu_button"],
+            &locale.menu.save_file_menu_button,
             true,
             None,
         );
 
         let save_as = MenuItem::new(
-            &locale.menu["save_as_file_menu_button"],
+            &locale.menu.save_as_file_menu_button,
             true,
             None,
         );
 
         let settings = MenuItem::new(
-            &locale.menu["settings_menu_button"],
+            &locale.menu.settings_menu_button,
             true,
             None,
         );
 
         let about = MenuItem::new(
-            &locale.menu["about_software_menu_button"],
+            &locale.menu.about_software_menu_button,
             true,
             None,
         );
 
         let file = Submenu::with_items(
-            &locale.menu["file_menu_dropdown"],
+            &locale.menu.file_menu_dropdown,
             true,
             &[
                 &new_file,
@@ -69,7 +69,7 @@ impl AppMenu {
         .unwrap();
 
         let misc = Submenu::with_items(
-            &locale.menu["misc_menu_dropdown"],
+            &locale.menu.misc_menu_dropdown,
             true,
             &[
                 &settings,
@@ -104,27 +104,27 @@ impl AppMenu {
 
     pub fn set_locale(&self, locale: &Locale) {
         self.new_file.set_text(
-            &locale.menu["new_file_menu_button"]
+            &locale.menu.new_file_menu_button
         );
 
         self.open_file.set_text(
-            &locale.menu["open_projects_file_menu_button"]
+            &locale.menu.open_projects_file_menu_button
         );
 
         self.save_file.set_text(
-            &locale.menu["save_file_menu_button"]
+            &locale.menu.save_file_menu_button
         );
 
         self.save_as.set_text(
-            &locale.menu["save_as_file_menu_button"]
+            &locale.menu.save_as_file_menu_button
         );
 
         self.settings.set_text(
-            &locale.menu["settings_menu_button"]
+            &locale.menu.settings_menu_button
         );
 
         self.about.set_text(
-            &locale.menu["about_software_menu_button"]
+            &locale.menu.about_software_menu_button
         );
     }
 

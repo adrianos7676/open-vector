@@ -47,7 +47,7 @@ fn locale_select(state: &State) -> Element<'static, Message> {
         .cloned();
     container(
     row![
-        text(state.locale.settings["locale_label"].clone()),
+        text(state.locale.settings.locale_label.clone()),
         horizontal(),
         pick_list(
             locales,

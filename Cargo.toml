@@ -16,6 +16,9 @@ iced_aw = { version = "0.14.1", default-features = false, features = ["menu"] }
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
 muda = "0.19.3"
 
+[profile.dev]
+codegen-units = 32
+
 [profile.release]
 opt-level = 3
 lto = "fat"
