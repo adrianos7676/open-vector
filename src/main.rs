@@ -44,6 +44,7 @@ impl Default for State {
             window_size: iced::Size { width: 1280.0, height: 720.0 },
             shift_pressed: false,
             control_pressed: false,
+            settings: Settings { zoom_speed: 10.0 }
         }
     }
 }
@@ -53,6 +54,10 @@ struct Document {
     name: String,
     zoom: f32,
     offset: iced::Vector,
+}
+
+struct Settings {
+    zoom_speed: f32,
 }
 
 struct State {
@@ -69,6 +74,7 @@ struct State {
     window_size: iced::Size,
     shift_pressed: bool,
     control_pressed: bool,
+    settings: Settings,
 }
 
 #[derive(Debug, Clone)]

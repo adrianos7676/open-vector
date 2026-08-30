@@ -99,10 +99,11 @@ pub fn draw(state: &State) -> Element<'_, Message> {
 pub fn scrolled(state: &mut State, delta: f32, _point: Point) {
     if let Some(open_project) = state.open_project {
         if let Some(project) = state.open_projects.get_mut(open_project) {
+            let factor = delta * state.settings.zoom_speed * project.zoom;
             if state.control_pressed {
-
+                project.offset = project.offset + iced::Vector{ x: 0.0, y: -factor };
             } else if state.shift_pressed {
-
+                project.offset = project.offset + iced::Vector{ x: factor, y: 0.0 };
             } else {
                 let factor = if delta > 0.0 { 1.1 } else { 0.9 };
 

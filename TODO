@@ -1,4 +1,6 @@
-Add horizontal and vertical canvas scrolling
 Add taskbar on Windows
 Add keybinds
 Add window focusing on linux (Wayland)
+
+Tools:
+-canvas drag tool (moving around with a mouse)
