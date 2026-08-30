@@ -29,19 +29,21 @@ pub fn view(state: &State) -> Element<'_, Message> {
 }
 
 pub fn open(state: &mut State) -> Task<Message> {
-    if state.about_window.is_none() {
-        let (_, task) = window::open(window::Settings {
-            size: iced::Size::new(400.0, 300.0),
-            resizable: false,
-            level: Level::AlwaysOnTop,
-            ..Default::default()
-        });
-
-        return task.map(Message::AboutWindowOpened);
-    } else {
-        //TODO: set the existing window to focus
+    match state.about_window {
+        None => {
+            let (_, task) = window::open(window::Settings {
+                size: iced::Size::new(400.0, 300.0),
+                resizable: false,
+                level: Level::AlwaysOnTop,
+                ..Default::default()
+            });
+            return task.map(Message::AboutWindowOpened)
+        }
+        Some(id) => {
+            let _ = window::gain_focus::<Message>(id);
+            return Task::none()
+        },
     }
-    Task::none()
 }
 
 pub fn opened(state: &mut State, window_id: window::Id) {
