@@ -1,6 +1,6 @@
 use std::fs;
 
-use iced::{Element, Point, Subscription, Task, keyboard::{self, Key}, mouse, window};
+use iced::{Element, Point, Subscription, Task, keyboard::{self, Key, key::Named}, mouse, window};
 
 use crate::gui::{main_window, settings_window::AvailableLocale};
 #[cfg(not(target_os = "linux"))]
@@ -42,11 +42,18 @@ impl Default for State {
             resizing_sidebar: false,
             sidebar_width: 240.0,
             window_size: iced::Size { width: 1280.0, height: 720.0 },
-            shift_pressed: false,
-            control_pressed: false,
-            settings: Settings { zoom_speed: 10.0 }
+            x_scroll_button_pressed: false,
+            y_scroll_button_pressed: false,
+            settings: Settings { zoom_speed: 10.0, x_axis_scroll_button: Key::Named(Named::Shift), y_axis_scroll_button: Key::Named(Named::Control) },
+            sellecting_keybind: None,
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Keybind {
+    XaxisScrollButton,
+    YaxisScrollButton,
 }
 
 struct Document {
@@ -58,6 +65,8 @@ struct Document {
 
 struct Settings {
     zoom_speed: f32,
+    x_axis_scroll_button: Key,
+    y_axis_scroll_button: Key,
 }
 
 struct State {
@@ -72,9 +81,10 @@ struct State {
     resizing_sidebar: bool,
     sidebar_width: f32,
     window_size: iced::Size,
-    shift_pressed: bool,
-    control_pressed: bool,
+    x_scroll_button_pressed: bool,
+    y_scroll_button_pressed: bool,
     settings: Settings,
+    sellecting_keybind: Option<Keybind>,
 }
 
 #[derive(Debug, Clone)]
@@ -100,6 +110,8 @@ enum Message {
     WindowResize(iced::Size),
     CanvasScrolled(f32, Point),
     LocaleChange(AvailableLocale),
+    SellectKeybind(Keybind),
+    SellectedKeybind(Key),
     NoOp,
 }
 
@@ -154,7 +166,7 @@ fn title(state: &State, window_id: window::Id) -> String {
 fn update(state: &mut State, message: Message) -> Task<Message> {
     match message {
         Message::MainWindowOpened(id) => gui::main_window::opened(state, id),
-        Message::ButtonPressed(key) => hid::key_pressed(state, key),
+        Message::ButtonPressed(key) => return hid::key_pressed(state, key),
 
         Message::ButtonReleased(key) => hid::key_released(state, key),
 
@@ -195,6 +207,22 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             state.main_window_menu_bar.set_locale(&state.locale);
         },
         Message::CanvasScrolled(delta, point) => main_window::canvas::scrolled(state, delta, point),
+        Message::SellectKeybind(keybind) => {
+            state.sellecting_keybind = Some(keybind);
+        },
+        Message::SellectedKeybind(key) => {
+            if let Some(keybind) = state.sellecting_keybind {
+                match keybind {
+                    Keybind::XaxisScrollButton => {
+                        state.settings.x_axis_scroll_button = key;
+                    },
+                    Keybind::YaxisScrollButton => {
+                        state.settings.y_axis_scroll_button = key;
+                    }
+                }
+                state.sellecting_keybind = None;
+            }
+        },
         Message::NoOp => {},
     }
 

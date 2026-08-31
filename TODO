@@ -1,5 +1,6 @@
 Add taskbar on Windows
-Add keybinds
+Add keybinds Overlap check
+Add keybinds for mouse (only keyboard buttons now work as a keybind)
 Add window focusing on linux (Wayland)
 
 Tools:

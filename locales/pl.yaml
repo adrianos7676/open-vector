@@ -15,6 +15,8 @@ menu:
 settings:
   window_title: "Ustawienia"
   locale_label: "Język"
+  x_scroll_keybind_label: "Przewijanie poziome"
+  y_scroll_keybind_label: "Przewijanie pionowe"
 
 about:
   window_title: "O Open Vector"
