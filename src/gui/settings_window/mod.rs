@@ -6,7 +6,7 @@ use iced::{
 
 use serde::Deserialize;
 
-use crate::{Message, State};
+use crate::{InputKey, Message, State};
 
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -59,12 +59,20 @@ fn locale_select(state: &State) -> Element<'static, Message> {
     .into()
 }
 
-fn key_to_string(key: &Key) -> String {
-    match key {
-        Key::Named(named) => format!("{named:?}"),
-        Key::Character(c) => c.to_string(),
-        Key::Unidentified => "Unidentified".to_string(),
+fn key_to_string(key: &InputKey) -> String {
+    if let Some(mouse_key) = &key.mouse_key {
+        return format!("{mouse_key:?}");
     }
+
+    if let Some(keyboard_key) = &key.keyboard_key {
+        return match keyboard_key {
+            Key::Named(named) => format!("{named:?}"),
+            Key::Character(c) => c.to_string(),
+            Key::Unidentified => "Unidentified".to_string(),
+        };
+    }
+
+    "Unassigned".to_string()
 }
 
 fn x_scroll_keybind_select(state: &State) -> Element<'static, Message> {

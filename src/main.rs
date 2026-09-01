@@ -44,29 +44,10 @@ impl Default for State {
             window_size: iced::Size { width: 1280.0, height: 720.0 },
             x_scroll_button_pressed: false,
             y_scroll_button_pressed: false,
-            settings: Settings { zoom_speed: 10.0, x_axis_scroll_button: Key::Named(Named::Shift), y_axis_scroll_button: Key::Named(Named::Control) },
+            settings: Settings { zoom_speed: 10.0, x_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some(Key::Named(Named::Shift)) }, y_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some(Key::Named(Named::Control)) } },
             sellecting_keybind: None,
         }
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Keybind {
-    XaxisScrollButton,
-    YaxisScrollButton,
-}
-
-struct Document {
-    id: usize,
-    name: String,
-    zoom: f32,
-    offset: iced::Vector,
-}
-
-struct Settings {
-    zoom_speed: f32,
-    x_axis_scroll_button: Key,
-    y_axis_scroll_button: Key,
 }
 
 struct State {
@@ -87,6 +68,30 @@ struct State {
     sellecting_keybind: Option<Keybind>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Keybind {
+    XaxisScrollButton,
+    YaxisScrollButton,
+}
+
+struct Document {
+    id: usize,
+    name: String,
+    zoom: f32,
+    offset: iced::Vector,
+}
+
+struct Settings {
+    zoom_speed: f32,
+    x_axis_scroll_button: InputKey,
+    y_axis_scroll_button: InputKey,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct InputKey {
+    mouse_key: Option<iced::mouse::Button>,
+    keyboard_key: Option<iced::keyboard::Key>,
+}
+
 #[derive(Debug, Clone)]
 enum Message {
     MainWindowOpened(window::Id),
@@ -95,8 +100,8 @@ enum Message {
     SettingsWindowOpen,
     SettingsWindowOpened(window::Id),
     WindowClosed(window::Id),
-    ButtonPressed(Key),
-    ButtonReleased(Key),
+    ButtonPressed(InputKey),
+    ButtonReleased(InputKey),
     NewFile,
     OpenFile,
     SaveFile,
@@ -111,7 +116,7 @@ enum Message {
     CanvasScrolled(f32, Point),
     LocaleChange(AvailableLocale),
     SellectKeybind(Keybind),
-    SellectedKeybind(Key),
+    SellectedKeybind(InputKey),
     NoOp,
 }
 
@@ -139,11 +144,19 @@ fn subscription(
                     Some(Message::StopSidebarResize)
                 },
                 iced::Event::Keyboard(keyboard::Event::KeyPressed { key, modified_key: _, physical_key: _, location: _, modifiers: _, text: _, repeat: _ }) => {
-                    Some(Message::ButtonPressed(key))
+                    Some(Message::ButtonPressed(InputKey {keyboard_key: Some(key), mouse_key: None}))
                 },
                 iced::Event::Keyboard(keyboard::Event::KeyReleased { key, modified_key: _, physical_key: _, location: _, modifiers: _}) => {
-                    Some(Message::ButtonReleased(key))
+                    Some(Message::ButtonReleased(InputKey {keyboard_key: Some(key), mouse_key: None}))
                 },
+                iced::Event::Mouse(mouse::Event::ButtonPressed(button)) => {
+                    Some(Message::ButtonPressed(InputKey { keyboard_key: None, mouse_key: Some(button) }))
+                }
+
+                iced::Event::Mouse(mouse::Event::ButtonReleased(button)) => {
+                    Some(Message::ButtonReleased(InputKey { keyboard_key: None, mouse_key: Some(button) }))
+                }
+
                 iced::Event::Window(window::Event::Resized(size)) => {
                     Some(Message::WindowResize(size))
                 },

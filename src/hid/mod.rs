@@ -1,8 +1,8 @@
-use iced::{Point, Task, keyboard::Key};
+use iced::{Point, Task};
 
-use crate::{Message, State};
+use crate::{InputKey, Message, State};
 
-pub fn key_pressed(state: &mut State, key: Key) -> Task<Message> {
+pub fn key_pressed(state: &mut State, key: InputKey) -> Task<Message> {
     println!("Key pressed: {:?}", key);
 
     match &key {
@@ -22,11 +22,11 @@ pub fn key_pressed(state: &mut State, key: Key) -> Task<Message> {
     }
 }
 
-pub fn key_released(state: &mut State, key: Key) {
+pub fn key_released(state: &mut State, key: InputKey) {
     println!("Key released: {:?}", key);
-    match key {
-        val if val == state.settings.x_axis_scroll_button => state.x_scroll_button_pressed = false,
-        val if val == state.settings.y_axis_scroll_button => state.y_scroll_button_pressed = false,
+    match &key {
+        val if val == &state.settings.x_axis_scroll_button => state.x_scroll_button_pressed = false,
+        val if val == &state.settings.y_axis_scroll_button => state.y_scroll_button_pressed = false,
         _ => {},
     }
 }
