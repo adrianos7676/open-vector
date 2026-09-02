@@ -19,6 +19,7 @@ pub struct SettingsLocale {
     pub locale_label: String,
     pub x_scroll_keybind_label: String,
     pub y_scroll_keybind_label: String,
+    pub zoom_speed_label: String,
 }
 
 #[derive(Debug, Deserialize)]

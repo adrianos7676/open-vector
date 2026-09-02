@@ -110,9 +110,24 @@ fn y_scroll_keybind_select(state: &State) -> Element<'static, Message> {
     .into()
 }
 
+fn zoom_speed(state: &State) -> Element<'static, Message> {
+    let value = state.settings.zoom_speed;
+
+    container(row![
+        text(state.locale.settings.zoom_speed_label.clone()),
+        horizontal(),
+        button("-").on_press(Message::DecreseZoomSpeed),
+        text(format!("{}", value)),
+        button("+").on_press(Message::IncreseZoomSpeed),
+    ])
+    .width(Length::Fill)
+    .into()
+}
+
 pub fn view(state: &State) -> Element<'_, Message> {
     scrollable(column![
         locale_select(state),
+        zoom_speed(state),
         x_scroll_keybind_select(state),
         y_scroll_keybind_select(state),
     ])

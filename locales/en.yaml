@@ -15,6 +15,7 @@ menu:
 settings:
   window_title: "Settings"
   locale_label: "Language"
+  zoom_speed_label: "Zoom Speed"
   x_scroll_keybind_label: "Horizontal scroll"
   y_scroll_keybind_label: "Vertical scroll"
 

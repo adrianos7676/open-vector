@@ -86,6 +86,7 @@ struct Settings {
     x_axis_scroll_button: InputKey,
     y_axis_scroll_button: InputKey,
 }
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct InputKey {
     mouse_key: Option<iced::mouse::Button>,
@@ -117,6 +118,8 @@ enum Message {
     LocaleChange(AvailableLocale),
     SellectKeybind(Keybind),
     SellectedKeybind(InputKey),
+    DecreseZoomSpeed,
+    IncreseZoomSpeed,
     NoOp,
 }
 
@@ -236,6 +239,8 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                 state.sellecting_keybind = None;
             }
         },
+        Message::DecreseZoomSpeed => state.settings.zoom_speed = (state.settings.zoom_speed - 1.0).max(0.0),
+        Message::IncreseZoomSpeed => state.settings.zoom_speed += 1.0,
         Message::NoOp => {},
     }
 
