@@ -1,3 +1,4 @@
+use std::fs;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -36,4 +37,15 @@ pub struct Locale {
     pub menu: MenuLocale,
     pub settings: SettingsLocale,
     pub about: AboutLocale,
+}
+
+pub fn load_locale(language: &str) -> Locale
+{
+    let path = format!("locales/{}.yaml", language);
+
+    let content = fs::read_to_string(path)
+        .expect("Nie można odczytać pliku lokalizacji");
+
+    serde_yaml::from_str(&content)
+        .expect("Nie można sparsować pliku lokalizacji")
 }

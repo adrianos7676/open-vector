@@ -1,7 +1,7 @@
 use std::fs;
 
 use iced::{
-    Element, Length, Task, keyboard::Key, widget::{button, column, container, pick_list, row, scrollable, space::horizontal, text}, window::{self, Level},
+    Element, Length, Task, widget::{button, column, container, pick_list, row, scrollable, space::horizontal, text}, window::{self, Level},
 };
 
 use serde::Deserialize;
@@ -59,27 +59,18 @@ fn locale_select(state: &State) -> Element<'static, Message> {
     .into()
 }
 
-fn key_to_string(key: &InputKey) -> String {
-    if let Some(mouse_key) = &key.mouse_key {
-        return format!("{mouse_key:?}");
-    }
-
-    if let Some(keyboard_key) = &key.keyboard_key {
-        return match keyboard_key {
-            Key::Named(named) => format!("{named:?}"),
-            Key::Character(c) => c.to_string(),
-            Key::Unidentified => "Unidentified".to_string(),
-        };
-    }
-
-    "Unassigned".to_string()
+fn input_key_name(key: &InputKey) -> String {
+    key.keyboard_key
+        .clone()
+        .or_else(|| key.mouse_key.clone())
+        .unwrap_or_else(|| "Not set".to_string())
 }
 
 fn x_scroll_keybind_select(state: &State) -> Element<'static, Message> {
     let key = if state.sellecting_keybind == Some(crate::Keybind::XaxisScrollButton) {
         "Press a key".to_string()
     } else {
-        key_to_string(&state.settings.x_axis_scroll_button)
+        input_key_name(&state.settings.x_axis_scroll_button)
     };
 
     container(row![
@@ -96,7 +87,7 @@ fn y_scroll_keybind_select(state: &State) -> Element<'static, Message> {
     let key = if state.sellecting_keybind == Some(crate::Keybind::YaxisScrollButton) {
         "Press a key".to_string()
     } else {
-        key_to_string(&state.settings.y_axis_scroll_button)
+        input_key_name(&state.settings.y_axis_scroll_button)
     };
 
 

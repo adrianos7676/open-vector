@@ -2,6 +2,9 @@ Add taskbar on Windows
 Add keybinds Overlap check
 Add settings saving
 Add window focusing on linux (Wayland)
+Add a struct for all input keys instead of 2 strings so refactor the InputKey struct
 
 Tools:
 -canvas drag tool (moving around with a mouse)
+
+change all settings-related messages to use a single structed message

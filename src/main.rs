@@ -1,14 +1,17 @@
-use std::fs;
+use iced::{Element, Point, Subscription, Task, keyboard, mouse, window};
+use serde::{Deserialize, Serialize};
 
-use iced::{Element, Point, Subscription, Task, keyboard::{self, Key, key::Named}, mouse, window};
-
-use crate::gui::{main_window, settings_window::AvailableLocale};
+use crate::{
+    gui::{main_window, settings_window::AvailableLocale}
+};
 #[cfg(not(target_os = "linux"))]
 use crate::gui::main_window::menu_bar::{self, AppMenu};
 mod gui;
 mod file;
 mod hid;
 mod locale;
+mod settings;
+
 fn main() -> iced::Result {
     iced::daemon(boot, update, view)
         .title(title)
@@ -16,20 +19,9 @@ fn main() -> iced::Result {
         .run()
 }
 
-fn load_locale(language: &str) -> locale::Locale {
-    let path = format!("locales/{}.yaml", language);
-
-    let content = fs::read_to_string(path)
-        .expect("Nie można odczytać pliku lokalizacji");
-
-    serde_yaml::from_str(&content)
-        .expect("Nie można sparsować pliku lokalizacji")
-}
-
-
 impl Default for State {
     fn default() -> Self {
-        let locale = load_locale("en");
+        let locale = locale::load_locale("en");
         Self {
             #[cfg(not(target_os = "linux"))]
             main_window_menu_bar: AppMenu::new(&locale),
@@ -44,7 +36,7 @@ impl Default for State {
             window_size: iced::Size { width: 1280.0, height: 720.0 },
             x_scroll_button_pressed: false,
             y_scroll_button_pressed: false,
-            settings: Settings { zoom_speed: 10.0, x_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some(Key::Named(Named::Shift)) }, y_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some(Key::Named(Named::Control)) } },
+            settings: settings::load_settings().unwrap_or_else(|| settings::Settings { zoom_speed: 10.0, x_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some("Named(Shift)".to_string()) }, y_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some("Named(Control)".to_string()) } }),
             sellecting_keybind: None,
         }
     }
@@ -64,7 +56,7 @@ struct State {
     window_size: iced::Size,
     x_scroll_button_pressed: bool,
     y_scroll_button_pressed: bool,
-    settings: Settings,
+    settings: settings::Settings,
     sellecting_keybind: Option<Keybind>,
 }
 
@@ -81,16 +73,10 @@ struct Document {
     offset: iced::Vector,
 }
 
-struct Settings {
-    zoom_speed: f32,
-    x_axis_scroll_button: InputKey,
-    y_axis_scroll_button: InputKey,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct InputKey {
-    mouse_key: Option<iced::mouse::Button>,
-    keyboard_key: Option<iced::keyboard::Key>,
+    mouse_key: Option<String>,
+    keyboard_key: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -147,17 +133,17 @@ fn subscription(
                     Some(Message::StopSidebarResize)
                 },
                 iced::Event::Keyboard(keyboard::Event::KeyPressed { key, modified_key: _, physical_key: _, location: _, modifiers: _, text: _, repeat: _ }) => {
-                    Some(Message::ButtonPressed(InputKey {keyboard_key: Some(key), mouse_key: None}))
+                    Some(Message::ButtonPressed(InputKey {keyboard_key: Some(format!("{:?}", key)), mouse_key: None}))
                 },
                 iced::Event::Keyboard(keyboard::Event::KeyReleased { key, modified_key: _, physical_key: _, location: _, modifiers: _}) => {
-                    Some(Message::ButtonReleased(InputKey {keyboard_key: Some(key), mouse_key: None}))
+                    Some(Message::ButtonReleased(InputKey {keyboard_key: Some(format!("{:?}", key)), mouse_key: None}))
                 },
                 iced::Event::Mouse(mouse::Event::ButtonPressed(button)) => {
-                    Some(Message::ButtonPressed(InputKey { keyboard_key: None, mouse_key: Some(button) }))
+                    Some(Message::ButtonPressed(InputKey { keyboard_key: None, mouse_key: Some(format!("{:?}", button)) }))
                 }
 
                 iced::Event::Mouse(mouse::Event::ButtonReleased(button)) => {
-                    Some(Message::ButtonReleased(InputKey { keyboard_key: None, mouse_key: Some(button) }))
+                    Some(Message::ButtonReleased(InputKey { keyboard_key: None, mouse_key: Some(format!("{:?}", button)) }))
                 }
 
                 iced::Event::Window(window::Event::Resized(size)) => {
@@ -218,7 +204,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             state.window_size = size;
         },
         Message::LocaleChange(locale) => {
-            state.locale = load_locale(&locale.lang);
+            state.locale = locale::load_locale(&locale.lang);
             #[cfg(not(target_os = "linux"))]
             state.main_window_menu_bar.set_locale(&state.locale);
         },
@@ -238,9 +224,16 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                 }
                 state.sellecting_keybind = None;
             }
+            settings::save_settings(&state.settings);
         },
-        Message::DecreseZoomSpeed => state.settings.zoom_speed = (state.settings.zoom_speed - 1.0).max(0.0),
-        Message::IncreseZoomSpeed => state.settings.zoom_speed += 1.0,
+        Message::DecreseZoomSpeed => {
+            state.settings.zoom_speed = (state.settings.zoom_speed - 1.0).max(0.0);
+            settings::save_settings(&state.settings);
+        },
+        Message::IncreseZoomSpeed => {
+            state.settings.zoom_speed += 1.0;
+            settings::save_settings(&state.settings);
+        },
         Message::NoOp => {},
     }
 
