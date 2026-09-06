@@ -234,7 +234,9 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             state.sellecting_keybind = Some(keybind);
         },
         Message::SellectedKeybind(key) => {
-            if let Some(keybind) = state.sellecting_keybind {
+            if state.settings.is_key_set_as_keybind(&key) {
+                println!("This key is allready asined to something");
+            } else if let Some(keybind) = state.sellecting_keybind {
                 match keybind {
                     Keybind::XaxisScrollButton => {
                         state.settings.x_axis_scroll_button = key;
@@ -244,8 +246,8 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                     }
                 }
                 state.sellecting_keybind = None;
+                settings::save_settings(&state.settings);
             }
-            settings::save_settings(&state.settings);
         },
         Message::DecreseZoomSpeed => {
             state.settings.zoom_speed = (state.settings.zoom_speed - 1.0).max(0.0);

@@ -4,6 +4,13 @@ use std::fs;
 
 use crate::InputKey;
 
+impl Settings {
+    pub fn is_key_set_as_keybind(&self, input_key: &InputKey) -> bool {
+        self.x_axis_scroll_button == *input_key
+            || self.y_axis_scroll_button == *input_key
+    }
+}
+
 #[derive(Serialize,Deserialize)]
 pub struct Settings {
     pub zoom_speed: f32,

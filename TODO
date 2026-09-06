@@ -1,8 +1,9 @@
 Add taskbar on Windows
-Add keybinds Overlap check
+Add a way to handle the keybind overlap check
 Add settings saving
 Add window focusing on linux (Wayland)
 Add a struct for all input keys instead of 2 strings so refactor the InputKey struct
+Add Keybind unbinding
 
 Add basic tools
 Tools:
