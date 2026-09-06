@@ -53,7 +53,7 @@ pub fn message_file_selected(path: Option<PathBuf>, state: &mut State) -> Task<M
             if path.is_file() {
                 if let Some(file_name) = path.file_name() {
                     let id = state.open_projects.len();
-                    state.open_projects.insert(id, crate::Document{ id: id, name: file_name.to_string_lossy().to_string(), zoom: 1.0, offset: Vector { x: 0.0, y: 0.0 } });
+                    state.open_projects.insert(id, crate::Document{ id: id, name: file_name.to_string_lossy().to_string(), zoom: 1.0, offset: Vector { x: 0.0, y: 0.0 }, elements: Vec::new() });
                     state.open_project = Some(id);
             }
         }

@@ -4,6 +4,7 @@ Add settings saving
 Add window focusing on linux (Wayland)
 Add a struct for all input keys instead of 2 strings so refactor the InputKey struct
 
+Add basic tools
 Tools:
 -canvas drag tool (moving around with a mouse)
 

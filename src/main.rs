@@ -1,4 +1,4 @@
-use iced::{Element, Point, Subscription, Task, keyboard, mouse, window};
+use iced::{Point, Subscription, Task, Vector, keyboard, mouse, window};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -38,6 +38,7 @@ impl Default for State {
             y_scroll_button_pressed: false,
             settings: settings::load_settings().unwrap_or_else(|| settings::Settings { zoom_speed: 10.0, x_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some("Named(Shift)".to_string()) }, y_axis_scroll_button: InputKey { mouse_key: None, keyboard_key: Some("Named(Control)".to_string()) } }),
             sellecting_keybind: None,
+            selected_tool: None,
         }
     }
 }
@@ -58,6 +59,7 @@ struct State {
     y_scroll_button_pressed: bool,
     settings: settings::Settings,
     sellecting_keybind: Option<Keybind>,
+    selected_tool: Option<ToolType>
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -65,12 +67,23 @@ enum Keybind {
     XaxisScrollButton,
     YaxisScrollButton,
 }
+#[derive(Debug, Clone)]
+enum ShapeType {
+    Rectangle
+}
+
+struct Element {
+    shape: ShapeType,
+    scale: Vector,
+    position: Vector
+}
 
 struct Document {
     id: usize,
     name: String,
     zoom: f32,
     offset: iced::Vector,
+    elements: Vec<Element>
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -80,7 +93,15 @@ struct InputKey {
 }
 
 #[derive(Debug, Clone)]
+enum ToolType {
+    Add,
+    Select
+}
+
+#[derive(Debug, Clone)]
 enum Message {
+    AddShapeToCanvas(ShapeType),
+    ChangeTool(ToolType),
     MainWindowOpened(window::Id),
     AboutWindowOpen,
     AboutWindowOpened(window::Id),
@@ -234,13 +255,32 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             state.settings.zoom_speed += 1.0;
             settings::save_settings(&state.settings);
         },
+        Message::ChangeTool(tool) => {
+            state.selected_tool = Some(tool);
+        },
+        Message::AddShapeToCanvas(shape) => {
+            println!("{:?}", &shape);
+            
+            if let Some(open_project) = state.open_project {
+                let elements_len = state.open_projects[open_project].elements.len();
+
+                state.open_projects[open_project].elements.push(Element {
+                    shape,
+                    scale: Vector { x: 100.0, y: 100.0 },
+                    position: Vector {
+                        x: (101 * elements_len) as f32,
+                        y: 100.0,
+                    },
+                });
+            }
+        },
         Message::NoOp => {},
     }
 
     Task::none()
 }
 
-fn view(state: &State, window_id: window::Id) -> Element<'_, Message> {
+fn view(state: &State, window_id: window::Id) -> iced::Element<'_, Message> {
     if state.about_window == Some(window_id) {
         return gui::about_window::view(state);
     } else if state.settings_window == Some(window_id) {

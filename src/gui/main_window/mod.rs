@@ -1,5 +1,5 @@
 use iced::{
-    Alignment, Background, Element, Length, Task, widget::{column, container, mouse_area, row, text}, window,
+    Alignment::{self, Center}, Background, Element, Length, Task, widget::{column, container, mouse_area, row, svg, text}, window,
 };
 #[cfg(target_os = "linux")]
 use iced::{widget::button, Theme, Renderer};
@@ -7,7 +7,7 @@ use iced::{widget::button, Theme, Renderer};
 use iced_aw::{Menu, MenuBar, menu::Item};
 
 use crate::{
-    Message, State, gui::elements,
+    Message, ShapeType, State, ToolType, gui::elements,
 };
 #[cfg(not(target_os = "linux"))]
 pub mod menu_bar;
@@ -118,6 +118,58 @@ pub fn view(state: &State) -> Element<'_, Message> {
     )
     .width(Length::Fixed(state.sidebar_width));
 
+    let add_icon = svg::Handle::from_memory(
+        include_bytes!("../../../assets/icons/add.svg").to_vec()
+    );
+    let select_icon = svg::Handle::from_memory(
+        include_bytes!("../../../assets/icons/select.svg").to_vec()
+    );
+
+    let tool_bar = container(column![
+        row![
+            button(
+                svg(add_icon)
+                .width(Length::Fill)
+                .height(Length::Fill)
+            )
+            .on_press(Message::ChangeTool(ToolType::Add))
+            .width(32)
+            .height(32),
+            button(
+                svg(select_icon)
+                .width(Length::Fill)
+                .height(Length::Fill)
+            )
+            .on_press(Message::ChangeTool(ToolType::Select))
+            .width(32)
+            .height(32)
+        ].spacing(5)
+    ].spacing(5))
+    .width(Length::Shrink)
+    .height(Length::Fill);
+    
+    let rectangle_icon = svg::Handle::from_memory(
+        include_bytes!("../../../assets/icons/select.svg").to_vec()
+    );
+
+    let tool_menu = container(row![
+        button(column![
+            svg(rectangle_icon)
+            .height(Length::FillPortion(7))
+            .width(Length::Fill),
+            text("rectangle")
+            .width(Length::Fill)
+            .height(Length::FillPortion(3))
+            .size(12)
+            .align_x(Center)
+            .align_y(Center)
+        ])
+        .width(64)
+        .height(Length::Fill)
+        .on_press(Message::AddShapeToCanvas(ShapeType::Rectangle)),
+    ])
+    .width(Length::Fill)
+    .height(64);
 
     let tabs = row(
         state.open_projects
@@ -133,8 +185,10 @@ pub fn view(state: &State) -> Element<'_, Message> {
     column(vec![
         #[cfg(target_os = "linux")]
         top_bar.into(),
+        tool_menu.into(),
         tabs.into(),
         row(vec![
+            tool_bar.into(),
             canvas_area.into(),
             side_bar.into(),
         ]).into(),

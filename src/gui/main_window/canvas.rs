@@ -75,15 +75,24 @@ impl<'a> canvas::Program<Message> for VectorCanvas<'a> {
         frame.translate(project.offset);
         frame.scale(project.zoom);
         
-        let rectangle = Path::rectangle(
-            Point::new(100.0, 100.0),
-            iced::Size::new(100.0, 100.0),
-        );
-
-        frame.fill(
-            &rectangle,
-            Color::from_rgb(0.2, 0.6, 1.0),
-        );
+        if let Some(open_project) = self.state.open_project {
+            for element in self.state.open_projects[open_project].elements.iter() {
+                let shape;
+                match element.shape {
+                    crate::ShapeType::Rectangle => {
+                        shape = Path::rectangle(
+                            Point::new(element.position.x, element.position.y),
+                            iced::Size::new(element.scale.x, element.scale.y),
+                        );
+                    },
+                }
+                frame.fill(
+                    &shape,
+                    Color::from_rgb(0.2, 0.6, 1.0),
+                );
+                
+            }
+        }
 
         vec![frame.into_geometry()]
     }
