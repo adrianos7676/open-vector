@@ -69,12 +69,20 @@ enum Keybind {
 }
 #[derive(Debug, Clone)]
 enum ShapeType {
-    Rectangle
+    Rectangle,
+    Circle
+}
+
+#[derive(Default)]
+struct Scale {
+    x: f32,
+    y: f32,
+    radius: f32
 }
 
 struct Element {
     shape: ShapeType,
-    scale: Vector,
+    scale: Scale,
     position: Vector
 }
 
@@ -266,9 +274,15 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             if let Some(open_project) = state.open_project {
                 let elements_len = state.open_projects[open_project].elements.len();
 
+                let mut scale = Scale::default();
+
+                scale.x = 100.0;
+                scale.y = 100.0;
+                scale.radius = 50.0;
+
                 state.open_projects[open_project].elements.push(Element {
                     shape,
-                    scale: Vector { x: 100.0, y: 100.0 },
+                    scale: scale,
                     position: Vector {
                         x: (101 * elements_len) as f32,
                         y: 100.0,

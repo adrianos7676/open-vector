@@ -152,6 +152,10 @@ pub fn view(state: &State) -> Element<'_, Message> {
         include_bytes!("../../../assets/icons/select.svg").to_vec()
     );
 
+    let circle_icon = svg::Handle::from_memory(
+        include_bytes!("../../../assets/icons/select.svg").to_vec()
+    );
+
     let tool_menu = container(row![
         button(column![
             svg(rectangle_icon)
@@ -167,6 +171,20 @@ pub fn view(state: &State) -> Element<'_, Message> {
         .width(64)
         .height(Length::Fill)
         .on_press(Message::AddShapeToCanvas(ShapeType::Rectangle)),
+        button(column![
+            svg(circle_icon)
+            .height(Length::FillPortion(7))
+            .width(Length::Fill),
+            text("circle")
+            .width(Length::Fill)
+            .height(Length::FillPortion(3))
+            .size(12)
+            .align_x(Center)
+            .align_y(Center)
+        ])
+        .width(64)
+        .height(Length::Fill)
+        .on_press(Message::AddShapeToCanvas(ShapeType::Circle)),
     ])
     .width(Length::Fill)
     .height(64);

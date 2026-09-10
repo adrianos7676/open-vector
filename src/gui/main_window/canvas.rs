@@ -85,6 +85,12 @@ impl<'a> canvas::Program<Message> for VectorCanvas<'a> {
                             iced::Size::new(element.scale.x, element.scale.y),
                         );
                     },
+                    crate::ShapeType::Circle => {
+                        shape = Path::circle(
+                            Point::new(element.position.x + element.scale.radius, element.position.y + element.scale.radius),
+                            element.scale.radius
+                        )
+                    }
                 }
                 frame.fill(
                     &shape,
