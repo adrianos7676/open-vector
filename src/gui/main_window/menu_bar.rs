@@ -5,7 +5,7 @@ use iced::{
 use muda::{Menu, MenuItem, PredefinedMenuItem, Submenu};
 use std::sync::mpsc as std_mpsc;
 
-use crate::{Locale, Message, State};
+use crate::{locale::Locale, Message, State};
 
 pub struct AppMenu {
     pub menu: Menu,

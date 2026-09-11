@@ -72,11 +72,11 @@ impl<'a> canvas::Program<Message> for VectorCanvas<'a> {
             Color::from_rgb(0.1, 0.1, 0.1),
         );
 
-        frame.translate(project.offset);
-        frame.scale(project.zoom);
+        frame.translate(project.viewport.offset);
+        frame.scale(project.viewport.zoom);
         
         if let Some(open_project) = self.state.open_project {
-            for element in self.state.open_projects[open_project].elements.iter() {
+            for element in self.state.open_projects[open_project].document.elements.iter() {
                 let shape;
                 match element.shape {
                     crate::ShapeType::Rectangle => {
@@ -114,16 +114,16 @@ pub fn draw(state: &State) -> Element<'_, Message> {
 pub fn scrolled(state: &mut State, delta: f32, _point: Point) {
     if let Some(open_project) = state.open_project {
         if let Some(project) = state.open_projects.get_mut(open_project) {
-            let factor = delta * state.settings.zoom_speed * project.zoom;
+            let factor = delta * state.settings.zoom_speed * project.viewport.zoom;
             if state.y_scroll_button_pressed {
-                project.offset = project.offset + iced::Vector{ x: 0.0, y: -factor };
+                project.viewport.offset = project.viewport.offset + iced::Vector{ x: 0.0, y: -factor };
             } else if state.x_scroll_button_pressed {
-                project.offset = project.offset + iced::Vector{ x: factor, y: 0.0 };
+                project.viewport.offset = project.viewport.offset + iced::Vector{ x: factor, y: 0.0 };
             } else {
                 let factor = if delta > 0.0 { 1.1 } else { 0.9 };
 
-                project.zoom *= factor;
-                project.zoom = project.zoom.clamp(0.05, 50.0);
+                project.viewport.zoom *= factor;
+                project.viewport.zoom = project.viewport.zoom.clamp(0.05, 50.0);
             }
         }
     }

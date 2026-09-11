@@ -51,7 +51,7 @@ struct State {
     about_window: Option<window::Id>,
     settings_window: Option<window::Id>,
     open_project: Option<usize>,
-    open_projects: Vec<Document>,
+    open_projects: Vec<Project>,
     resizing_sidebar: bool,
     sidebar_width: f32,
     window_size: iced::Size,
@@ -88,10 +88,18 @@ struct Element {
 
 struct Document {
     id: usize,
-    name: String,
-    zoom: f32,
-    offset: iced::Vector,
+    name: String,  
     elements: Vec<Element>
+}
+
+struct Viewport {
+    offset: iced::Vector,
+    zoom: f32
+}
+
+struct Project {
+    document: Document,
+    viewport: Viewport
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -272,7 +280,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             println!("{:?}", &shape);
             
             if let Some(open_project) = state.open_project {
-                let elements_len = state.open_projects[open_project].elements.len();
+                let elements_len = state.open_projects[open_project].document.elements.len();
 
                 let mut scale = Scale::default();
 
@@ -280,7 +288,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                 scale.y = 100.0;
                 scale.radius = 50.0;
 
-                state.open_projects[open_project].elements.push(Element {
+                state.open_projects[open_project].document.elements.push(Element {
                     shape,
                     scale: scale,
                     position: Vector {

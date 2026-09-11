@@ -1,8 +1,22 @@
 use iced::{
-    Alignment::{self, Center}, Background, Element, Length, Task, widget::{column, container, mouse_area, row, svg, text}, window,
+    Alignment::{self, Center},
+    Background,
+    Element,
+    Length,
+    Task,
+    window,
+    widget::{
+        button,
+        column,
+        container,
+        mouse_area,
+        row,
+        svg,
+        text,
+    },
 };
 #[cfg(target_os = "linux")]
-use iced::{widget::button, Theme, Renderer};
+use iced::{Theme, Renderer};
 #[cfg(target_os = "linux")]
 use iced_aw::{Menu, MenuBar, menu::Item};
 
@@ -192,7 +206,7 @@ pub fn view(state: &State) -> Element<'_, Message> {
     let tabs = row(
         state.open_projects
             .iter()
-            .map(|document| elements::tab::new(&document.name, &document.id))
+            .map(|project| elements::tab::new(&project.document.name, &project.document.id))
     )
     .spacing(2)
     .width(Length::Fill)
